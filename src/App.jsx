@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -103,88 +104,142 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>Task Dashboard</h1>
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <h1>Task Dashboard</h1>
+        <p>Manage your tasks from one place.</p>
+      </header>
 
-      <h2>Add Task</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-          />
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h3>Total Tasks</h3>
+          <p>{tasks.length}</p>
         </div>
 
-        <div>
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-          />
+        <div className="stat-card">
+          <h3>Pending</h3>
+          <p>{tasks.filter((task) => task.status === "Pending").length}</p>
         </div>
 
-        <div>
-          <label>Status</label>
-          <select name="status" value={formData.status} onChange={handleChange}>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
+        <div className="stat-card">
+          <h3>In Progress</h3>
+          <p>{tasks.filter((task) => task.status === "In Progress").length}</p>
         </div>
 
-        <div>
-          <label>Priority</label>
-          <select
-            name="priority"
-            value={formData.priority}
-            onChange={handleChange}
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
+        <div className="stat-card">
+          <h3>Completed</h3>
+          <p>{tasks.filter((task) => task.status === "Completed").length}</p>
         </div>
+      </div>
 
-        <div>
-          <label>Due Date</label>
-          <input
-            type="date"
-            name="dueDate"
-            value={formData.dueDate}
-            onChange={handleChange}
-          />
+      <section className="form-section">
+        <h2>{editingTaskId ? "Update Task" : "Add Task"}</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Title</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div className="form-group full-width">
+              <label>Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Priority</label>
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Due Date</label>
+              <input
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <button className="primary-button" type="submit">
+            {editingTaskId ? "Update Task" : "Add Task"}
+          </button>
+        </form>
+      </section>
+
+      <section className="tasks-section">
+        <h2>Tasks</h2>
+
+        <div className="task-list">
+          {tasks.map((task) => (
+            <div className="task-card" key={task.id}>
+              <h3>{task.title}</h3>
+
+              <p>{task.description}</p>
+
+              <p>
+                <strong>Status:</strong> {task.status}
+              </p>
+
+              <p>
+                <strong>Priority:</strong> {task.priority}
+              </p>
+
+              <p>
+                <strong>Due Date:</strong> {task.dueDate || "No due date"}
+              </p>
+
+              <div className="task-actions">
+                <button
+                  className="edit-button"
+                  onClick={() => handleEdit(task)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  className="delete-button"
+                  onClick={() => handleDelete(task.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <button type="submit">
-          {editingTaskId ? "Update Task" : "Add Task"}
-        </button>
-      </form>
-
-      <hr />
-
-      <h2>Tasks</h2>
-
-      {tasks.map((task) => (
-        <div key={task.id}>
-          <h3>{task.title}</h3>
-
-          <p>{task.description}</p>
-
-          <p>Status: {task.status}</p>
-
-          <p>Priority: {task.priority}</p>
-
-          <p>Due Date: {task.dueDate || "No due date"}</p>
-
-          <button onClick={() => handleEdit(task)}>Edit</button>
-          <button onClick={() => handleDelete(task.id)}>Delete</button>
-        </div>
-      ))}
+      </section>
     </div>
   );
 }
