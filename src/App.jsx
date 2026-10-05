@@ -48,17 +48,38 @@ function App() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const response = await fetch("http://localhost:5000/api/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    if (editingTaskId) {
+      const response = await fetch(
+        `http://localhost:5000/api/tasks/${editingTaskId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
 
-    const newTask = await response.json();
+      const updatedTask = await response.json();
 
-    setTasks([newTask, ...tasks]);
+      setTasks(
+        tasks.map((task) => (task.id === editingTaskId ? updatedTask : task)),
+      );
+
+      setEditingTaskId(null);
+    } else {
+      const response = await fetch("http://localhost:5000/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const newTask = await response.json();
+
+      setTasks([newTask, ...tasks]);
+    }
 
     setFormData({
       title: "",
@@ -67,6 +88,18 @@ function App() {
       priority: "Medium",
       dueDate: "",
     });
+  }
+
+  async function handleDelete(id) {
+    const response = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    setTasks(tasks.filter((task) => task.id !== id));
   }
 
   return (
@@ -127,7 +160,9 @@ function App() {
           />
         </div>
 
-        <button type="submit">Add Task</button>
+        <button type="submit">
+          {editingTaskId ? "Update Task" : "Add Task"}
+        </button>
       </form>
 
       <hr />
@@ -147,6 +182,7 @@ function App() {
           <p>Due Date: {task.dueDate || "No due date"}</p>
 
           <button onClick={() => handleEdit(task)}>Edit</button>
+          <button onClick={() => handleDelete(task.id)}>Delete</button>
         </div>
       ))}
     </div>
